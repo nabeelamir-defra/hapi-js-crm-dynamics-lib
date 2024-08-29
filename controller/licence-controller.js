@@ -21,10 +21,12 @@ export default [
      * @returns {import('@hapi/hapi').ResponseObject} - A response containing the permission or an error
      */
     handler: async (request, h) => {
+      console.time('test');
       try {
         const results = await executeWithErrorLog(permissionForFullReferenceNumber(request.query.fullLicenceNumber))
 
         const permission = results[0]
+        console.log(JSON.stringify(permission, null, 2))
         const mappedResult = {
           licenceNumber: permission.entity.referenceNumber,
           contact: {
@@ -32,9 +34,11 @@ export default [
             fullName: `${permission.expanded.licensee.entity.firstName} ${permission.expanded.licensee.entity.lastName}`
           }
         }
+        console.timeEnd('test');
         return h.response(mappedResult).code(200);
       } catch (error) {
         console.error("Error fetching licence:", error);
+        console.timeEnd('test');
         return h.response({ error: "Unable to fetch licence" }).code(500);
       }
     },
